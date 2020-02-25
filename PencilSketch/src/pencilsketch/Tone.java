@@ -29,7 +29,7 @@ public class Tone {
 		for(int i = 0; i < normBlurredGray.length; i++) {//separation by segmenting through the high and low thresholds
 			for(int j = 0; j < normBlurredGray[0].length; j++) {
 				double pixelVal = normBlurredGray[i][j];
-				if(pixelVal > highThresh) { //if part of high thresh, becomes bright layer
+				if(pixelVal >= highThresh) { //if part of high thresh, becomes bright layer
 					sumBrightPixels += pixelVal;
 					separatedImage[0][i][j] = pixelVal;
 					brightVals.add(pixelVal);
@@ -59,7 +59,7 @@ public class Tone {
 		double meanDark = sumDarkPixels/numDarkPixels;
 		double sigmaDark = 0, sigmaBright = 0, sigmaMid = 0; //sigma meaning standard deviation
 		for(Double num : midVals)
-			sigmaMid =+ Math.pow(meanMid - num, 2);
+			sigmaMid += Math.pow(meanMid - num, 2);
 		sigmaMid = Math.sqrt(sigmaMid/numMidPixels);
 		for(Double num : darkVals)
 			sigmaDark+= Math.pow(meanDark - num, 2);
@@ -120,6 +120,7 @@ public class Tone {
 	private static double brightPDF(double val, double sigmaBright, double meanBright) {
 		if(val <= 1)
 			return Math.exp((val-1)/sigmaBright)/sigmaBright;
+		else
 		return 0;
 	} 	
 	/**
@@ -130,7 +131,7 @@ public class Tone {
 	 * @return
 	 */
 	private static double midPDF(double val, double uA, double uB) {
-		if(val < uB && val > uA)
+		if(val <= uB && val >= uA)
 			return 1.0/(uB-uA);
 		return 0;
 	}
@@ -142,8 +143,8 @@ public class Tone {
 	 * @return
 	 */
 	private static double darkPDF(double val, double sigmaDark, double meanDark) {
-		double value = Math.exp(-.5 * Math.pow((val-meanDark)/sigmaDark, 2));
-		value /= Math.sqrt(2 * Math.PI * sigmaDark);
+		double value = Math.exp(-1.0*Math.pow(val-meanDark, 2)/(2*Math.pow(sigmaDark, 2)));
+				value /= Math.sqrt(2.0* Math.PI * sigmaDark);
 		return value;
 	}
 	/**
