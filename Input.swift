@@ -3,12 +3,14 @@
 //  PencilSketch
 //
 //  Created by Eric Johns on 9/20/19.
+//  Commented by Eli Siron on 3/2/2020.
 //  Copyright © 2019 Eric Johns. All rights reserved.
 //
 
 import Foundation
 import SwiftImage
 
+//Values held for later use within the app
 class Input {
     static var k: Int = 2
     static var sigma: Double = 1.35
