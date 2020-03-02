@@ -14,24 +14,30 @@ class Picture {
     var image: Image<RGBA<UInt8>>
     
     init() {
+        //instntiates default image
         image = Image<RGBA<UInt8>>(named: "townhall")!
     }
     
     init(name: String) {
+        //creates an image with the given name
         image = Image<RGBA<UInt8>>(named: name)!
     }
     
     init(image: Image<RGBA<UInt8>>) {
+        //instantiates a given image
         self.image = image
     }
     
     init(width: Int, height: Int) {
+        //instantiates a black image of the given dimensions
         image = Image<RGBA<UInt8>>(width: width, height: height, pixel: .black)
     }
     
     init(array: [[Double]]) {
+        //instantiates an image from a given Double array
         image = Image<RGBA<UInt8>>(width: array[0].count, height: array.count, pixel: .black)
         
+        //copies each value from array to pixel
         for y in 0..<array.count {
             for x in 0..<array[0].count {
                 image[x, y] = RGBA(red: UInt8(array[y][x]), green: UInt8(array[y][x]), blue: UInt8(array[y][x]), alpha: UInt8(255))
@@ -40,8 +46,10 @@ class Picture {
     }
     
     init(array: [[Int]]) {
+        //instantiates an image from a given Int array
         image = Image<RGBA<UInt8>>(width: array[0].count, height: array.count, pixel: .black)
-
+        
+        //copies each value form array to pixel
         for y in 0..<array.count {
             for x in 0..<array[0].count {
                 image[x, y] = RGBA(red: UInt8(array[y][x]), green: UInt8(array[y][x]), blue: UInt8(array[y][x]), alpha: UInt8(255))
@@ -50,40 +58,50 @@ class Picture {
     }
     
     func getHeight() -> Int {
+        //returns the height of the image
         return image.height
     }
     
     func getWidth() -> Int {
+        //returns the width of the image
         return image.width
     }
     
     func getImage() -> Image<RGBA<UInt8>> {
+        //returns the image
         return image
     }
     
     func getUIImage() -> UIImage {
+        //returns the image usable in a UIImageView
         return image.uiImage
     }
     
     func setPicture(name: String) {
+        //sets the name of the image
         image = Image<RGBA<UInt8>>(named: name)!
     }
     
     func setPicture(image: Image<RGBA<UInt8>>) {
+        //sets the image
         self.image = image
     }
     
     func setPicture(image: UIImage) {
+        //sets the image from a UIImageView image
         self.image = Image<RGBA<UInt8>>(uiImage: image)
     }
     
     func getPixel(x: Int, y: Int) -> RGBA<UInt8> {
+        //returns the pixel at a given coordinate (x,y)
         return image.pixelAt(x: x, y: y)!
     }
     
     func setArray(array: [[Int]]) {
+        //converts an Int array to an image
         image = Image<RGBA<UInt8>>(width: array[0].count, height: array.count, pixel: .black)
         
+        //copies each value from array to pixel
         for y in 0..<array.count {
             for x in 0..<array[0].count {
                 image[x, y] = RGBA(red: UInt8(array[y][x]), green: UInt8(array[y][x]), blue: UInt8(array[y][x]), alpha: UInt8(255))
@@ -92,14 +110,18 @@ class Picture {
     }
     
     func rotate(degrees: Int) {
+        //rotates an image by a given angles
         image = image.rotated(byDegrees: degrees)
     }
     
     func resize(width: Int, height: Int) {
+        //resizes an image to given dimensions
         image = image.resizedTo(width: width, height: height)
     }
     
     func resize(factor: Double) {
+        
+        //scales an image by a given factor
         let newWidth: Int = Int(Double(getWidth()) * factor)
         let newHeight: Int = Int(Double(getHeight()) * factor)
         
@@ -107,14 +129,17 @@ class Picture {
     }
     
     func resizeExact(width: Int, height: Int) {
+        //resizes an image to given dimensions more exactly
         image = image.resizedTo(width: width, height: height)
     }
     
     func convertToGray() {
+        //converts every pixel to grayscale
         for index in 0..<(image.width * image.height) {
             let y = index % image.height
             let x = index / image.height
             
+            //weighted average
             let red = Double(image.pixelAt(x: x, y: y)!.red) * 0.21
             let green = Double(image.pixelAt(x: x, y: y)!.green) * 0.72
             let blue = Double(image.pixelAt(x: x, y: y)!.blue) * 0.07
@@ -122,11 +147,13 @@ class Picture {
             
             let gray = UInt8(red + green + blue)
             
+            //set each pixel to new color
             image[x, y] = RGBA(red: gray, green: gray, blue: gray, alpha: alpha)
         }
     }
     
     func squareImage() {
+        //truncates the image to be a perfect square
         if (image.width != image.height) {
             var slice: ImageSlice<RGBA<UInt8>>
             let width = image.width % 2 == 0 ? image.width : image.width - 1
