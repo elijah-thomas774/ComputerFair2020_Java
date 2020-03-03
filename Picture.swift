@@ -172,10 +172,12 @@ class Picture {
     }
 
     func flipDiagonal() {
+        //makes the image a square
         if (image.width != image.height) {
             squareImage()
         }
         
+        //flips th eimage across the diagonal running from the top left corner to the bottom right corner
         for y in 0..<image.height {
             for x in 0..<y {
                 let pixelOriginal: RGBA<UInt8> = (image.pixelAt(x: x, y: y))!
@@ -187,10 +189,12 @@ class Picture {
     }
     
     func flipVertical() {
+        //flips the image across the horizontal axis
         image = image.yReversed()
     }
     
     func flipHorizontal() {
+        //flips the image across the vertical axis
         image = image.xReversed()
     }
     
@@ -199,6 +203,7 @@ class Picture {
             let y = index % image.height
             let x = index / image.height
             
+            //set every value in the chosen channel to the chosen value
             switch (channel) {
                 case 0: image[x, y].red = UInt8(value); break
                 case 1: image[x, y].green = UInt8(value); break
@@ -213,6 +218,7 @@ class Picture {
             let y = index % image.height
             let x = index / image.height
             
+            //add the chosen value to every value in the chosen channel
             switch (channel) {
                 case 0:
                     var redValue = Int(image[x, y].red) + value
@@ -257,6 +263,7 @@ class Picture {
             let y = index % image.height
             let x = index / image.height
 
+            //add the chosen values to their corresponding channels
             var redValue = Int(image[x, y].red) + red
             var greenValue = Int(image[x, y].green) + green
             var blueValue = Int(image[x, y].blue) + blue
@@ -286,6 +293,7 @@ class Picture {
     }
     
     func swapChannel(channel1: Int, channel2: Int) {
+        //switches the chosen color channels
         for index in 0..<(image.width * image.height) {
             let y = index % image.height
             let x = index / image.height
@@ -306,6 +314,7 @@ class Picture {
     }
     
     func keep(channel: Int) {
+        //keeps one color channel while setting the other channels to zero
         for index in 0..<(image.width * image.height) {
             let y = index % image.height
             let x = index / image.height
@@ -322,6 +331,7 @@ class Picture {
     func encode(channel: Int, toEncode: Image<RGBA<UInt8>>) {
         for y in 0..<(min(image.height, toEncode.height)) {
             for x in 0..<(min(image.width, toEncode.width)) {
+                //weighted average convert to grayscale
                 let red = Double(toEncode[x, y].red) * 0.21
                 let green = Double(toEncode[x, y].green) * 0.72
                 let blue = Double(toEncode[x, y].blue) * 0.07
@@ -376,6 +386,7 @@ class Picture {
     }
     
     func mirrorVertical(top: Bool) {
+        //mirrors either the top or the bottom onto the other side
         for x in 0..<(image.width) {
             for y in 0..<(image.height / 2) {
                 if (top) {
@@ -390,6 +401,7 @@ class Picture {
     }
     
     func mirrorHorizontal(left: Bool) {
+        //mirrors either the left or the right onto the other side
         for x in 0..<(image.width / 2) {
             for y in 0..<(image.height) {
                 if (left) {
@@ -404,10 +416,12 @@ class Picture {
     }
     
     func mirrorDiagonal(leftRight: Bool) {
+        //makes the image square
         if (image.width != image.height) {
             squareImage()
         }
         
+        //mirrors eithe the uppr right triangle or the bottom left triangle onto the other side
         for x in 0..<image.width {
             for y in 0..<(image.height - x) {
                 if (leftRight) {
@@ -422,6 +436,7 @@ class Picture {
     }
     
     func negate() {
+        //subtracts each channel from 255 to negate it
         for index in 0..<(image.width * image.height) {
             let y = index % image.height
             let x = index / image.height
@@ -440,6 +455,7 @@ class Picture {
             let y = index % image.height
             let x = index / image.height
 
+            //weighted average convert to grayscale
             let red = Double(image.pixelAt(x: x, y: y)!.red) * 0.21
             let green = Double(image.pixelAt(x: x, y: y)!.green) * 0.72
             let blue = Double(image.pixelAt(x: x, y: y)!.blue) * 0.07
@@ -447,6 +463,7 @@ class Picture {
             
             let gray = UInt8(red + green + blue)
             
+            //tests the grayscale values to create a binary image with values of either 255 or 0
             if (gray > 127) {
                 image[x, y] = RGBA(red: 255, green: 255, blue: 255, alpha: alpha)
             } else {
@@ -458,6 +475,7 @@ class Picture {
     static func convertArray(picture: Picture) -> [[Int]] {
         var imageArray: [[Int]] = Array(repeating: Array(repeating: 0, count: picture.getWidth()), count: picture.getHeight())
         
+        //creates an array from a grayscale image with the same values
         for y in 0..<imageArray.count {
             for x in 0..<imageArray[0].count {
                 imageArray[y][x] = Int(picture.getPixel(x: x, y: y).red)
@@ -470,6 +488,7 @@ class Picture {
     func convertArray() -> [[Int]] {
         var imageArray: [[Int]] = Array(repeating: Array(repeating: 0, count: image.width), count: image.height)
         
+        //creates an array from a grayscale image with the same values
         for y in 0..<imageArray.count {
             for x in 0..<imageArray[0].count {
                 imageArray[y][x] = Int(getPixel(x: x, y: y).red)
