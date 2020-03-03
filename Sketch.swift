@@ -72,12 +72,13 @@ class Sketch {
         }
     }
     
-    static func sketch2(filtered: [[Double]], lineScale: Double, dThreshMin: Double, dThreshMax: Double) -> [[Int]] {
-        var sine: Int, cosine: Int
-        var r: Int, c: Int, u: Int, v: Int
-        var angle: Double
-        var maximum: Double, num1: Double, num2: Double, num3: Double
-        var maxNum: Double = 0
+    static func sketch2(filtered: [[Double]], lineScale: Double, dThreshMin: Double, dThreshMax: Double) -> [[Int]] 
+        //so basically this is detecting edges of the image and drawing lines tangent to the edge.
+        var sine: Int, cosine: Int //used for parts of non maximum supresssion in finding corresponding points
+        var r: Int, c: Int, u: Int, v: Int //other variables to loop through, r and c are used for a point, u and v are used for another
+        var angle: Double //the gradients angle
+        var maximum: Double, num1: Double, num2: Double, num3: Double //the values of the points being checked, each num holds a temporary point in the array for checking
+        var maxNum: Double = 0 //maximum in the specified angle
         let x: Int = filtered[0].count - 1, y: Int = filtered.count - 1
         var dThresh: [[Double]] = Array(repeating: Array(repeating: 0, count: x), count: y)
         var sketch: [[Int]] = Array(repeating: Array(repeating: 0, count: x), count: y)
