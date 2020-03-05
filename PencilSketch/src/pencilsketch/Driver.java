@@ -41,97 +41,113 @@ public class Driver {
 		int k = 5; //border reflect and smoothing size. MAKES A DIFFERENCE
 		double sDev = 1.35; //standard deviation for smoothing kernel. MAKES A DIFFERENCE
 		int dThreshMin = 18; //dThesh uses a normalized gradMag.  usually ranges from 15 - 50 for good results
-		double scaleLineLength = .013; //decimal percentage to scale length of sketch lines. .005 - .02
+		double scaleLineLength = .016; //decimal percentage to scale length of sketch lines. .005 - .02
 
 		Image image = new Image(picture, k, sDev, dThreshMin, scaleLineLength);
 		//Tone.genTone(image.filtered(), image.grayScale());
-//		show(normalize(sketch));
-//		show(normalize(tone));
-//		show(normalize(combine));
-//		BufferedImage im;
-//		try {
-//			 im = ImageIO.read(new File(filechosen));
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			im = null;
-//		}
+		//		show(normalize(sketch));
+		//		show(normalize(tone));
+		//		show(normalize(combine));
+		//		BufferedImage im;
+		//		try {
+		//			 im = ImageIO.read(new File(filechosen));
+		//		} catch (IOException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//			im = null;
+		//		}
 		long time = System.currentTimeMillis();
-//		Sketch.sketch3(im,k,sDev, scaleLineLength, dThreshMin);
-//		System.out.println(System.currentTimeMillis() - time + " NEW");
-//		time = System.currentTimeMillis();
-//		Image image = new Image(picture, k, sDev, dThreshMin, scaleLineLength);
-//		explore(normalize(negate(image.sketch2())));
-//		System.out.println(System.currentTimeMillis() - time + " OLD");
-//		
-//		
-		//show(negate(image.sketch()));
+
 		int input = 0;
-		while (input != -1) {/*
-			input = Input.readInt("Enter dThresh Value: ");
-			if(input != image.getDThreshMin()) {
-				image.setDThreshMin(input);
-				image.setDThreshMax(3*input);
-			}
-			double iNput = Input.readDouble("Enter Line Length for scaling: ");
-			if(iNput != image.getLineScale())
-				image.setLineScale(iNput);*/
-			//String woot = Input.readString("Display add(sketch, Image)?(Y/N): ");
-			int[][] blendedSketch = addSketch(image.filtered(), (normalize(image.sketch2())));
-			int[][][] blendedSketchColor = addSketch(image.arrPic(), (normalize(image.sketch2())));
-			//blendedSketch = blend(image.grayScale(), negate(normalize(image.sketch2())), .45);
-			explore((blendedSketch));
-			explore(blendedSketchColor);
-			explore(image.arrPic());
-			//if(woot.equalsIgnoreCase("Y"))
-				//explore(add(negate(grayToColor(image.sketch())), image.arrPic()));
+		while (input != -1) {
+			
+			//blendedSketch with blurred gray
 			time = System.currentTimeMillis();
+			int[][] blendedSketchBlurred = addSketch(image.filtered(), (normalize(image.sketch2())));
+			System.out.println(System.currentTimeMillis() - time);
+			explore(blendedSketchBlurred);
+			
+			//blended sketch with color (no brightness change
+			time = System.currentTimeMillis();
+			int[][][] blendedSketchColor = addSketch(image.arrPic(), (normalize(image.sketch2())));
+			System.out.println(System.currentTimeMillis() - time);			time = System.currentTimeMillis();
+			explore(blendedSketchColor);
+			
+			//blended sketch with color with brightness change
+			time = System.currentTimeMillis();
+			int[][][] blendedSketchColorB = addSketch(brightnessChange(image.arrPic(), 1.35), (normalize(image.sketch2())));
+			System.out.println(System.currentTimeMillis() - time);
+			explore(blendedSketchColorB);
+			
+			
+			time = System.currentTimeMillis();
+			int[][] blendedSketch = addSketch(image.grayScale(), (normalize(image.sketch2())));
+			System.out.println(System.currentTimeMillis() - time);
+			explore((blendedSketch));
+			
+	
+
+			explore(image.arrPic());
+
 			explore(negate(normalize(image.sketch2())));	
 			System.out.println(System.currentTimeMillis() - time);
 			input = Input.readInt("");
 		}
-		
+
+	}
+	public static int[][][] brightnessControl(int[][][] image){
+		double[][][] yuv = toYUV(image);
+		for(int i = 0; i < yuv.length; i++)
+			for(int j = 0; j < yuv[0].length; j++) 
+				yuv[i][j][0] *= 1.35;
+		int[][][] controlled = toRGB(yuv);
+		return controlled;
 	}
 
+
+	public static int[][] addSketch(int[][] gray, int[][] sketch){
+		int[][] newImage = new int[sketch.length][sketch[0].length];
+		int[][] grayCopy = copy((gray));
+		grayCopy = advNorm(negate(grayCopy), 8, 255);
+		int[][] sketchCopy = normalize(copy(sketch));	
+		//advNorm(sketchCopy, 0, 7);
+		for(int i = 0; i < newImage.length; i++) {
+			for(int j = 0; j < newImage[0].length; j++) {
+				newImage[i][j] =  grayCopy[i][j]-sketch[i][j];
+				if(newImage[i][j] < 0) newImage[i][j] = 0;
+			}
+		} 
+		return newImage;
+	}
 	public static int[][] addSketch(double[][] gray, int[][] sketch){
 		int[][] newImage = new int[sketch.length][sketch[0].length];
 		int[][] grayCopy = copy(toIntArray(gray));
 		grayCopy = advNorm(negate(grayCopy), 8, 255);
-		int[][] sketchCopy = copy(sketch);	
+		int[][] sketchCopy = normalize(copy(sketch));	
 		advNorm(sketchCopy, 0, 7);
 		for(int i = 0; i < newImage.length; i++) {
 			for(int j = 0; j < newImage[0].length; j++) {
-					newImage[i][j] =  grayCopy[i][j]-sketch[i][j];
+				newImage[i][j] =  grayCopy[i][j]-sketch[i][j];
+				if(newImage[i][j] < 0) newImage[i][j] = 0;
 			}
 		} 
 		return newImage;
 	}
 	public static int[][][] addSketch(int[][][] image, int[][] sketch){
 		int[][][] newImage = new int[sketch.length][sketch[0].length][3];
-		int[][][] imageCopy = changeColorOrder(image);
-//		imageCopy[0] = advNorm(imageCopy[0], 8, 255);
-//		imageCopy[1] = advNorm(imageCopy[0], 8, 255);
-//		imageCopy[2] = advNorm(imageCopy[0], 8, 255);
-		int[][] sketchCopy = copy(sketch);	
+		//int[][][] imageCopy = changeColorOrder(image);
+
+		int[][] sketchCopy = normalize(copy(sketch));	
 		advNorm(sketchCopy, 0, 7);
 		for(int i = 0; i < newImage.length; i++) {
 			for(int j = 0; j < newImage[0].length; j++) {
-				for(int k = 0; k < 3; k++)
-					newImage[i][j][k] =  imageCopy[k][i][j]-sketch[i][j];
+				for(int k = 0; k < 3; k++) {
+					newImage[i][j][k] =  image[i][j][k]-sketch[i][j];
+					if(newImage[i][j][k] < 0) newImage[i][j][k] = 0;
+				}
 			}
 		} 
 		return newImage;
-	}
-	public static int[][][] changeColorOrder(int[][][] arr){
-		int[][][] image = new int[3][arr.length][arr[0].length];
-		for(int i = 0; i < arr.length; i++) {
-			for(int j = 0; j < arr[0].length; j++) {
-				for(int k = 0; k < 3; k++) {
-					image[k][i][j] = arr[i][j][k];
-				}
-			}
-		}
-		return image;
 	}
 	public static int[][] advNorm(int[][] arr, int maxNew, int minNew){
 		int min = ArrayMath.min(arr);
@@ -141,5 +157,26 @@ public class Driver {
 				arr[i][j] = minNew + (arr[i][j] - min) * (maxNew - minNew)/(max-min);
 		return arr;
 	}
-
+	
+	
+	//changes as of 3/5/20 period 5
+	//also changed in each add sketch a check for under 0
+	public static int[][][] brightnessChange(int[][][] rgb, double multiplier){
+		int[][][] newArr = new int[rgb.length][rgb[0].length][3];
+		double y, u ,v , r, g ,b;
+		for (int i = 0; i < rgb.length; i++) {
+			for (int j = 0; j < rgb[0].length; j++) {
+				r = rgb[i][j][0]/255.;
+				g = rgb[i][j][1]/255.;
+				b = rgb[i][j][2]/255.;
+				y = (.299*r + .587*g + .114*b) * multiplier;
+				u = -.14713*r-.28886*g+.436*b;
+				v = .615*r-.51499*g-.10001*b;;
+				newArr[i][j][0] =(int) ((y + 1.14*v) * 255);
+				newArr[i][j][1] =(int) ((y - .396*u - .581*v)*255);
+				newArr[i][j][2] =(int) ((y + 2.033*u)*255); 
+			}
+		}
+		return newArr;
+	}
 }

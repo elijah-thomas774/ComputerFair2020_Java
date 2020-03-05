@@ -457,15 +457,18 @@ public class Helpers {
 	public static double distance(int[] colorVector1, int[] colorVector2) {
 		return Math.sqrt(Math.pow(colorVector1[0] - colorVector2[0], 2) + Math.pow(colorVector1[1] - colorVector2[1], 2) + Math.pow(colorVector1[2] - colorVector2[2], 2));
 	}
-	
+
 	public static double[][][] toYUV(int[][][] rgb){ 
 		double[][][] yuv = new double[rgb.length][rgb[0].length][3];
-		double y, u ,v;
+		double y, u ,v, r, g, b;
 		for (int i = 0; i < rgb.length; i++) {
 			for (int j = 0; j < rgb[0].length; j++) {
-				y = .299*(rgb[i][j][0]) + .587*rgb[i][j][1] + .114*rgb[i][j][2];
-				u = .492*(rgb[i][j][3] - y);
-				v = .877*(rgb[i][j][0] - y);
+				r = rgb[i][j][0]/255.;
+				g = rgb[i][j][1]/255.;
+				b = rgb[i][j][2]/255.;
+				y = (.299*r + .587*g + .114*b);
+				u = -.14713*r-.28886*g+.436*b;
+				v = .615*r-.51499*g-.10001*b;;
 				yuv[i][j][0] = y;
 				yuv[i][j][1] = u;
 				yuv[i][j][2] = v;
@@ -477,9 +480,9 @@ public class Helpers {
 		int[][][] rgb = new int[yuv.length][yuv[0].length][3];
 		for (int i = 0; i < rgb.length; i++) {
 			for (int j = 0; j < rgb[0].length; j++) {
-				rgb[i][j][0] =(int) (yuv[i][j][0] + 1.14*yuv[i][j][3]);
-				rgb[i][j][1] =(int) (yuv[i][j][0] - .395*yuv[i][j][1] - .581*yuv[i][j][2]);
-				rgb[i][j][2] =(int) (yuv[i][j][0] + 2.033*yuv[i][j][1]); 
+				rgb[i][j][0] =(int) ((yuv[i][j][0] + 1.14*yuv[i][j][2]) * 255);
+				rgb[i][j][1] =(int) ((yuv[i][j][0] - .396*yuv[i][j][1] - .581*yuv[i][j][2])*255);
+				rgb[i][j][2] =(int) ((yuv[i][j][0] + 2.033*yuv[i][j][1])*255); 
 			}
 		}
 		return rgb;

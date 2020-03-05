@@ -204,7 +204,7 @@ public class Sketch {
 				}
 				if(thresh >= dThreshMax) {
 					addLine(height, sketch, slope, i, j);
-
+					addLine(height, sketch, slope, i, j);
 				}
 			}
 		}
