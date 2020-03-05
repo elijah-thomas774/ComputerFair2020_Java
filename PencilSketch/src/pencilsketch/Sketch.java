@@ -224,7 +224,7 @@ public class Sketch {
 	 * @param lineScale the scaled length for a sketch line.
 	 * @return The image with edges converted into sketch lines.
 	 */
-	public static int[][] sketch(int[][] dThresh, double[][] gradAng, double lineScale){
+	public static int[][] sketch(int[][] dThresh, double[][] gradAng, double lineScale, int[][] edge){
 		int[][] sketch = new int[dThresh.length][dThresh[0].length];
 		int height = (int) (Math.sqrt(sketch.length * sketch[0].length) * lineScale);
 		for(int i = 0; i < sketch.length; i++) {
@@ -233,7 +233,7 @@ public class Sketch {
 				if(dThresh[i][j] >= 127) {
 					addLine(height, sketch, gradAng[i][j] + Math.PI/2, i, j);
 				}
-				if(dThresh[i][j] > 127) {
+				if(edge[i][j] > 127) {
 					addLine(height, sketch, gradAng[i][j] + Math.PI/2, i, j);
 
 				}
@@ -255,7 +255,7 @@ public class Sketch {
 
 		int y, x;
 		double slope = Math.tan(ang);
-		if (Math.abs(slope) >= 1-.001) {
+		if (Math.abs(slope) >= 1.00) {
 			for(int i = -length/2; i <= length/2; i++) {
 				y = r+i;
 				x = c + (int) Math.round(i/slope);

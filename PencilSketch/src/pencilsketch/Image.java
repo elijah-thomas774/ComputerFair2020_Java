@@ -93,7 +93,7 @@ public class Image {
 	 */
 	public int[][] sketch(){
 		if(sketch == null)
-			sketch = normalize(Sketch.sketch(dThresh(), gradAng(), lineScale));
+			sketch = normalize(Sketch.sketch(dThresh(), gradAng(), lineScale, edge()));
 		return sketch;
 	}
 

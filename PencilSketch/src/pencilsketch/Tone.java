@@ -57,6 +57,9 @@ public class Tone {
 		double meanBright = sumBrightPixels/numBrightPixels;
 		double meanMid = sumMidPixels/numMidPixels;
 		double meanDark = sumDarkPixels/numDarkPixels;
+		weightBright = .42;
+		weightMid = .29;
+		weightDark = .29;
 		double sigmaDark = 0, sigmaBright = 0, sigmaMid = 0; //sigma meaning standard deviation
 		for(Double num : midVals)
 			sigmaMid += Math.pow(meanMid - num, 2);
@@ -70,9 +73,32 @@ public class Tone {
 		double uA = meanMid - Math.sqrt(3)*sigmaMid;
 		double uB = meanMid + Math.sqrt(3)*sigmaMid;
 		
+		double[][][] newImage = new double[3][separatedImage[0].length][separatedImage[0][0].length];
+		double a, b, c, abc;
+		for(int i = 0; i < newImage[0].length; i++) {
+			for(int j = 0; j < newImage[0][0].length; j++) {
+				for(int k = 0; k < 3; k++) {
+					a = brightPDF(separatedImage[k][i][j], sigmaBright, meanBright);
+					b = midPDF(separatedImage[k][i][j], uA, uB);
+					c = darkPDF(separatedImage[k][i][j], sigmaDark, meanDark);
+					abc = a + b + c;
+					if(abc == 0) {
+						abc =1;
+					}
+					newImage[k][i][j] = ((weightBright * a)+(weightMid/4 * b)+(weightDark * c))/abc;
+				}
+			}
+		}
+		double[][] test = newImage[0];
+		for(int i = 0; i < test.length; i++) {
+			for(int j = 0; j < test[0].length; j++) {
+				test[i][j] = newImage[0][i][j] + newImage[1][i][j] + newImage[2][i][j];
+			}
+		}
+		Helpers.show(Helpers.normalize(test));
 		double[] sampleHist = new double[256];
 		double SUM = 0;
-		double a, b, c, abc;
+		//double a, b, c, abc;
 		for(int i = 0; i < 256; i++) {
 			 a = brightPDF(i/255., sigmaBright, meanBright);
 			 b = midPDF(i/255., uA, uB);
@@ -81,7 +107,7 @@ public class Tone {
 			if(abc == 0) {
 				abc = 1;
 			}
-			sampleHist[i] = totalNum*(weightBright*a+weightMid*b+weightDark*c)/abc;
+			sampleHist[i] = (weightBright*a+weightMid/4*b+weightDark*c);
 			SUM += sampleHist[i];
 		}
 		System.out.println("weightBright: " + weightBright + "\n"
@@ -250,6 +276,8 @@ public class Tone {
 			arr[0] = .48;
 			arr[1] = .5;
 		}
+//		arr[0] = .35;
+//		arr[1] = .64;
 		return arr;
 	}
 	/**

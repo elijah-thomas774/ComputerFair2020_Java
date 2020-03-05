@@ -312,6 +312,15 @@ public class PointProcesses {
 		}
 		return img;
 	}
+	public static int[][] blend(int[][] image1, int[][] image2, double alpha){
+		int[][] img = new int[image2.length][image2[0].length];
+		for (int i = 0; i < img.length; i++) {
+			for (int j = 0; j < img[0].length; j++) {
+				img[i][j] = (int) ((alpha * image1[i][j] + ((1 - alpha) * image2[i][j])));
+			}
+		}
+		return img;
+	}
 	//----------------------------------------------------------------------------------------------
 	/**
 	 * the mirror arms method mirrors the snowman's arms from top to bottom
