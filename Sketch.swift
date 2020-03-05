@@ -9,14 +9,17 @@
 import Foundation
 
 class Sketch {
+    //using the angle anf the dThresh values, lines are drawn tangent to the angle on the outline of the image with a rough appearance
     static func sketch(dThresh: [[Int]], gradAng: [[Double]], lineScale: Double) -> [[Int]] {
         var sketch: [[Int]] = Array(repeating: Array(repeating: 0, count: dThresh[0].count), count: dThresh.count)
         let height: Int = Int(sqrt(Double(sketch.count * sketch[0].count)) * lineScale)
-        
+        //using linescale, we find a suitable height based on the image size
         print("Starting sketch...")
         
         for y in 0..<sketch.count {
             for x in 0..<sketch[0].count {
+                //anything >= 127 is either an edge, or maybe an edge. I have decided to get the maybe an edge as to simulate light strokes of 
+                //partially defined areas in an image. to make the actual edges stand out, the lines are drawn again on the edges.
                 if (dThresh[y][x] >= 127) {
                     addLine(length: height, array: &sketch, ang: gradAng[y][x] + (Double.pi / 2), r: y, c: x)
                 }
@@ -32,31 +35,35 @@ class Sketch {
         return(sketch)
     }
     
+    //addLine simulates a stroke of a pencil on paper, using simple addition and a slope
     static func addLine(length: Int, array: inout [[Int]], ang: Double, r: Int, c: Int) {
         var lengthCopy = length
         
-        if (lengthCopy % 2 == 0) {
+        if (lengthCopy % 2 == 0) {//makes the line an odd number to have a set center for easy use
             lengthCopy += 1
         }
         
         var y: Int, x: Int
-        let slope: Double = tan(ang)
+        let slope: Double = tan(ang)//the slope ends up being the tangent to the gradient angle, making life easier
         
-        if (abs(slope) >= 1 - 0.001) {
+        if (abs(slope) >= 1.0) {// handles slopes greater or equal to one
             for i in (-lengthCopy / 2)..<(lengthCopy / 2 + 1) {
                 y = r + i
                 x = c + Int(round(Double(i) / slope))
+                //x and y are the coordinates to where the line should have something added
                 
+                //checks for boundaries, both on image and in line length
                 if (x >= 0 && x < array[0].count && y >= 0 && y < array.count && sqrt(pow(Double(y - r), 2) + pow(Double(x - c), 2)) <= Double(lengthCopy / 2)) {
                     
                     array[y][x] += 1
                     
+                    //add thickness, but making the line 2 pixels thick
                     if (x - 1 > 0) {
                         array[y][x - 1] += 1
                     }
                 }
             }
-        } else if (abs(slope) < 1) {
+        } else if (abs(slope) < 1.0) { //very similar to the first part, just handeling slops < 1
             for i in (-lengthCopy / 2)..<(lengthCopy / 2 + 1) {
                 y = r + Int(round(Double(i) * slope))
                 x = c + i
