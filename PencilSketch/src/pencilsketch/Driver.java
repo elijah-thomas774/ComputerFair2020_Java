@@ -121,40 +121,36 @@ public class Driver {
 	}
 	public static int[][] addSketch(double[][] gray, int[][] sketch){
 		int[][] newImage = new int[sketch.length][sketch[0].length];
-		int[][] grayCopy = copy(toIntArray(gray));
-		grayCopy = advNorm(negate(grayCopy), 8, 255);
-		int[][] sketchCopy = normalize(copy(sketch));	
+		int[][] grayCopy = copy(toIntArray(gray)); 
+		grayCopy = advNorm(negate(grayCopy), 8, 255); //makes the grayscale image normalized in a limited range to brighten blacks
 		advNorm(sketchCopy, 0, 7);
 		for(int i = 0; i < newImage.length; i++) {
 			for(int j = 0; j < newImage[0].length; j++) {
-				newImage[i][j] =  grayCopy[i][j]-sketch[i][j];
-				if(newImage[i][j] < 0) newImage[i][j] = 0;
+				newImage[i][j] =  grayCopy[i][j]-sketch[i][j]; //should make the places where the sketch marks are the darkest color
+				if(newImage[i][j] < 0) newImage[i][j] = 0;//cuts off negative values
 			}
 		} 
 		return newImage;
 	}
 	public static int[][][] addSketch(int[][][] image, int[][] sketch){
-		int[][][] newImage = new int[sketch.length][sketch[0].length][3];
-		//int[][][] imageCopy = changeColorOrder(image);
-
-		int[][] sketchCopy = normalize(copy(sketch));	
-		advNorm(sketchCopy, 0, 7);
+		int[][][] newImage = new int[sketch.length][sketch[0].length][3];//makes new image
 		for(int i = 0; i < newImage.length; i++) {
 			for(int j = 0; j < newImage[0].length; j++) {
 				for(int k = 0; k < 3; k++) {
-					newImage[i][j][k] =  image[i][j][k]-sketch[i][j];
-					if(newImage[i][j][k] < 0) newImage[i][j][k] = 0;
+					newImage[i][j][k] =  image[i][j][k]-sketch[i][j]; //subtracts the pixel values of sketch from the original image
+					if(newImage[i][j][k] < 0) newImage[i][j][k] = 0;//cuts of the negative values
 				}
 			}
 		} 
 		return newImage;
 	}
+	//normalize image with a max and min
 	public static int[][] advNorm(int[][] arr, int maxNew, int minNew){
-		int min = ArrayMath.min(arr);
-		int max = ArrayMath.max(arr);
+		int min = ArrayMath.min(arr); //min value of the array
+		int max = ArrayMath.max(arr); //max value of the array
 		for(int i = 0; i < arr.length; i++)
 			for(int j = 0; j < arr[0].length; j++)
-				arr[i][j] = minNew + (arr[i][j] - min) * (maxNew - minNew)/(max-min);
+				arr[i][j] = minNew + (arr[i][j] - min) * (maxNew - minNew)/(max-min);//the normalization formula
 		return arr;
 	}
 	
@@ -166,13 +162,13 @@ public class Driver {
 		double y, u ,v , r, g ,b;
 		for (int i = 0; i < rgb.length; i++) {
 			for (int j = 0; j < rgb[0].length; j++) {
-				r = rgb[i][j][0]/255.;
+				r = rgb[i][j][0]/255.;  //sets the rgb values to be a percentage
 				g = rgb[i][j][1]/255.;
 				b = rgb[i][j][2]/255.;
-				y = (.299*r + .587*g + .114*b) * multiplier;
+				y = (.299*r + .587*g + .114*b) * multiplier; //uses the formulas provided by wikipedia and a multiplier to make the image brighter
 				u = -.14713*r-.28886*g+.436*b;
 				v = .615*r-.51499*g-.10001*b;;
-				newArr[i][j][0] =(int) ((y + 1.14*v) * 255);
+				newArr[i][j][0] =(int) ((y + 1.14*v) * 255); //converts the yuv values back to rgb
 				newArr[i][j][1] =(int) ((y - .396*u - .581*v)*255);
 				newArr[i][j][2] =(int) ((y + 2.033*u)*255); 
 			}
